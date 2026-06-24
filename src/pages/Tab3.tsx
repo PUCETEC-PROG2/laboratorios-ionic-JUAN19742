@@ -1,38 +1,62 @@
-import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonCard, IonCardContent,IonText, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, useIonViewWillEnter, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import './Tab3.css';
+import { GithubUser } from '../interfaces/GithubUser';
+import React from 'react';
+import { fetchUserInfo } from '../services/GithubServices';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Tab3: React.FC = () => {
+
+  const [userInfo, setUserInfo] = React.useState<GithubUser | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  const [errorMsg, setErrorMsg] = React.useState("");
+
+  useIonViewWillEnter(() => {
+    setLoading(true);
+    fetchUserInfo().then((user) => {
+      setUserInfo(user);
+    }).catch((error) => {
+      setErrorMsg("Error obteniendo información del usuario: " + (error as Error).message);
+    }).finally(() => {
+      setLoading(false);
+    });
+  });
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Perfil del Ususario</IonTitle>
+          <IonTitle>Perfil De Usuario</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Perfil del Ususario</IonTitle>
+            <IonTitle size="large">Perfil De Usuario</IonTitle>
           </IonToolbar>
         </IonHeader>
 
         <div className="card-container">
           <IonCard className="card">
-            <img src="https://avatars.githubusercontent.com/u/48026030?v=4" 
-            alt="Foto de Perfil" 
-             />
-             <IonCardHeader>
-              <IonCardTitle>Juan Rueda</IonCardTitle>
-              <IonCardSubtitle>JuanRueda</IonCardSubtitle>
-             </IonCardHeader>
-             <IonCardContent>
-              <p>Desarrollador de Software</p>
-              <p>Adicto a todo lo malo</p>
-             </IonCardContent>
+            <img 
+            src={userInfo?.avatar_url} 
+            alt={userInfo?.name}/>
+
+            <IonCardHeader>
+              <IonCardTitle>{userInfo?.name}</IonCardTitle>
+              <IonCardSubtitle>{userInfo?.login}</IonCardSubtitle>
+            </IonCardHeader>
+
+            <IonCardContent>
+              <p>{userInfo?.bio}</p>
+            </IonCardContent>
           </IonCard>
+
+          {errorMsg && errorMsg !== '' && <IonText color="danger"><p>{errorMsg}</p></IonText>}
+          
         </div>
 
-        
+        {loading && <LoadingSpinner />}
       </IonContent>
     </IonPage>
   );

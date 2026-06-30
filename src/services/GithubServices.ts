@@ -66,3 +66,26 @@ export const fetchUserInfo = async(): Promise<GithubUser | null > => {
         throw new Error(`${(error as Error).message}`);
     }
 }
+
+export const updateRepository = async (owner: string, repo: string, repository: RepositoryPayload): Promise<Repository> => {
+    try {
+        const response = await apiClient.patch(`repos/${owner}/${repo}`, repository);
+        if (response.status !== 200) {
+            throw new Error(`${response.statusText}`);
+        }
+        return response.data;
+    } catch (error) {
+        throw new Error(`${(error as Error).message}`);
+    }
+}
+
+export const deleteRepository = async (owner: string, repo: string): Promise<void> => {
+    try {
+        const response = await apiClient.delete(`repos/${owner}/${repo}`);
+        if (response.status !== 204) {
+            throw new Error(`${response.statusText}`);
+        }
+    } catch (error) {
+        throw new Error(`${(error as Error).message}`);
+    }
+}

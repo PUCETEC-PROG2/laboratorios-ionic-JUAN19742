@@ -4,9 +4,26 @@ import './RepoItem.css';
 import React from 'react';
 import { pencil, trash } from 'ionicons/icons';
 
-const RepoItem: React.FC<Repository> = (repository) => {
+interface RepoItemProps extends Repository {
+    onEdit?: (repository: Repository) => void;
+    onDelete?: (repository: Repository) => void;
+}
+
+const RepoItem: React.FC<RepoItemProps> = ({ onEdit, onDelete, ...repository }) => {
+    const slidingRef = React.useRef<HTMLIonItemSlidingElement>(null);
+
+    const handleEdit = () => {
+        slidingRef.current?.close();
+        onEdit?.(repository);
+    };
+
+    const handleDelete = () => {
+        slidingRef.current?.close();
+        onDelete?.(repository);
+    };
+
     return (
-        <IonItemSliding>
+        <IonItemSliding ref={slidingRef}>
             <IonItem>
               <IonThumbnail slot="start">
                 <img src = {repository.owner.avatar_url}
@@ -25,11 +42,11 @@ const RepoItem: React.FC<Repository> = (repository) => {
             </IonItem>
             <IonItemOptions>
 
-              <IonItemOption color="primary">
+              <IonItemOption color="primary" onClick={handleEdit}>
                 <IonIcon icon= {pencil} slot= "icon-only"/>
               </IonItemOption>
 
-            <IonItemOption color="danger">
+            <IonItemOption color="danger" onClick={handleDelete}>
               <IonIcon icon= {trash} slot= "icon-only"/>
             </IonItemOption> 
               
